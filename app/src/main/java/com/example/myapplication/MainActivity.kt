@@ -9,7 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -22,7 +21,6 @@ import com.example.myapplication.adapter.ArticleAdapter
 import com.example.myapplication.data.Articles
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.network.asyncGetHttpRequest
-
 
 class MainActivity : AppCompatActivity(), ItemListListener {
 
@@ -48,7 +46,6 @@ class MainActivity : AppCompatActivity(), ItemListListener {
             adapter = countriesAdapter
         }
 
-        //
         if (ContextCompat.checkSelfPermission(
                 this,
                 POST_NOTIFICATIONS
@@ -103,8 +100,7 @@ class MainActivity : AppCompatActivity(), ItemListListener {
                 fetchArticles()
             } else {
                 // Permission denied
-                Toast.makeText(this, "Permission to read contacts was denied.", Toast.LENGTH_SHORT)
-                    .show()
+                this.finishAffinity();
             }
         }
     }
@@ -134,5 +130,3 @@ class MainActivity : AppCompatActivity(), ItemListListener {
         startActivity(browserIntent)
     }
 }
-
-
