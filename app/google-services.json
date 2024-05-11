@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "942253275228",
+    "project_id": "fir-pushnotifications-bd921",
+    "storage_bucket": "fir-pushnotifications-bd921.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:942253275228:android:52b2bae52d0d58585a8e99",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxDT76jH2-U541225rPtTqUeVVVaRMwo0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

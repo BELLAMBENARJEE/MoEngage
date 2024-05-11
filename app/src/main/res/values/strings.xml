@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="there_is_a_problem_on_our_end">There is a problem on our end.</string>
+    <string name="author">Author</string>
+    <string name="description">Description</string>
+    <string name="title">Title</string>
+</resources>
