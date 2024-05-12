@@ -32,15 +32,9 @@ fun asyncGetHttpRequest(
             )
             print(response)
             reader.close()
-            // Call the success callback on the main thread
-            launch(Dispatchers.Main) {
-                onSuccess(apiResponse)
-            }
+            onSuccess(apiResponse)
         } catch (e: Exception) {
-            // Handle error cases and call the error callback on the main thread
-            launch(Dispatchers.Main) {
-                onError(Exception("HTTP Request failed with response code $responseCode"))
-            }
+            onError(Exception("HTTP Request failed with response code $responseCode"))
         }
     }
 }

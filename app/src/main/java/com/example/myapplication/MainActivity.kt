@@ -14,33 +14,34 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.myapplication.Constants.BASE_URL
 import com.example.myapplication.Constants.PERMISSIONS_REQUEST_READ_CONTACTS
 import com.example.myapplication.adapter.ArticleAdapter
-import com.example.myapplication.data.Articles
 import com.example.myapplication.databinding.ActivityMainBinding
-import com.example.myapplication.network.asyncGetHttpRequest
+import com.example.myapplication.viewmodel.MainViewModel
 
 class MainActivity : AppCompatActivity(), ItemListListener {
 
-    private var articleList = mutableListOf<Articles>()
     private var countriesAdapter: ArticleAdapter = ArticleAdapter(this, arrayListOf())
     private lateinit var binding: ActivityMainBinding
+    private lateinit var mainViewModel: MainViewModel
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true);
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding =
             DataBindingUtil.inflate(
                 LayoutInflater.from(this),
-                com.example.myapplication.R.layout.activity_main,
+                R.layout.activity_main,
                 null,
                 false
             )
 
         setContentView(binding.root)
+        mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
+
         binding.articleList.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = countriesAdapter
@@ -53,7 +54,7 @@ class MainActivity : AppCompatActivity(), ItemListListener {
         ) {
             requestPermission()
         } else {
-            fetchArticles()
+            observeViewModel()
         }
     }
 
@@ -72,7 +73,7 @@ class MainActivity : AppCompatActivity(), ItemListListener {
                 .setPositiveButton("OK") { _, _ ->
                     ActivityCompat.requestPermissions(
                         this@MainActivity,
-                        arrayOf<String>(android.Manifest.permission.POST_NOTIFICATIONS),
+                        arrayOf(POST_NOTIFICATIONS),
                         PERMISSIONS_REQUEST_READ_CONTACTS
                     )
                 }
@@ -81,7 +82,7 @@ class MainActivity : AppCompatActivity(), ItemListListener {
         } else {
             // No explanation needed; request the permission
             ActivityCompat.requestPermissions(
-                this, arrayOf<String>(android.Manifest.permission.POST_NOTIFICATIONS),
+                this, arrayOf(POST_NOTIFICATIONS),
                 PERMISSIONS_REQUEST_READ_CONTACTS
             )
         }
@@ -97,31 +98,42 @@ class MainActivity : AppCompatActivity(), ItemListListener {
         if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted
-                fetchArticles()
+                observeViewModel()
             } else {
                 // Permission denied
-                this.finishAffinity();
+                this.finishAffinity()
             }
         }
     }
 
-    /**fetching the articleslist*/
-    private fun fetchArticles() {
-        asyncGetHttpRequest(
-            endpoint = BASE_URL,
-            onSuccess = {
-                articleList = it.response.articles
-                countriesAdapter.updateArticles(articleList)
+    private fun observeViewModel() {
+        mainViewModel.articles.observe(this) { articles ->
+            articles?.let {
+                countriesAdapter.updateArticles(it)
                 binding.progressBar.visibility = View.GONE
                 binding.errorText.visibility = View.GONE
                 binding.articleList.visibility = View.VISIBLE
-            },
-            onError = {
-                binding.progressBar.visibility = View.GONE
-                binding.articleList.visibility = View.GONE
-                binding.errorText.visibility = View.VISIBLE
             }
-        )
+        }
+        mainViewModel.error.observe(this) { isError ->
+            isError?.let {
+                binding.errorText.visibility = if (it) View.VISIBLE else View.GONE
+                if (it) {
+                    binding.progressBar.visibility = View.GONE
+                    binding.articleList.visibility = View.GONE
+                }
+            }
+        }
+
+        mainViewModel.loading.observe(this) { isLoading ->
+            isLoading?.let {
+                binding.progressBar.visibility = if (it) View.VISIBLE else View.GONE
+                if (it) {
+                    binding.errorText.visibility = View.GONE
+                    binding.articleList.visibility = View.GONE
+                }
+            }
+        }
     }
 
     /**called when a particular article is clicked*/
